@@ -18,6 +18,7 @@ results_folder = 'results'
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu') # 디바이스 설정
 
+# 저장
 # 상위 저장 폴더가 없으면 상위 저장 폴더 생성
 if not os.path.exists(results_folder):
     os.makedirs(results_folder)
@@ -25,7 +26,6 @@ if not os.path.exists(results_folder):
 target_folder_name = max([0] + [int(e) for e in os.listdir(results_folder)])+1 # 하위 타깃 폴더 이름
 target_folder = os.path.join(results_folder, str(target_folder_name)) # 하위 타깃 폴더 경로
 os.makedirs(target_folder) # 하위 타깃 폴더 생성
-
 # 타깃 폴더에 하이퍼파라미터 저장
 with open(os.path.join(target_folder, 'hparam.txt'), 'w') as f: # 타깃 폴더에 hparam.txt 파일 생성
     f.write(f'{lr}\n')
@@ -72,6 +72,42 @@ loss_fn = nn.CrossEntropyLoss()
 # Optimizer 선언
 optim = Adam(params=myMLP.parameters(), lr=lr)
 
+# 평가함수 구현
+# 전체 데이터에 대한 정확도를 계산하는 함수
+def evaluate(model, loader, device):    # 모델, 데이터 로더, 디바이스를 인자로 받음
+    with torch.no_grad():               # 그래디언트 계산 비활성화
+        model.eval()                    # 모델을 평가 모드로 설정
+        total = 0                       # 전체 데이터 개수 저장 변수
+        correct = 0                     # 정답 개수 저장 변수
+        for images, targets in loader:  # 데이터 로더로부터 미니배치를 하나씩 꺼내옴
+            images, targets = images.to(device), targets.to(device) # 디바이스에 데이터를 보냄
+            output = model(images)      # 모델에 미니배치 데이터 입력하여 결괏값 계산
+            output_index = torch.argmax(output, dim = 1) # 결괏값 중 가장 큰 값의 인덱스를 뽑아냄
+            total += targets.shape[0]   # 전체 데이터 개수 누적
+            correct += (output_index == targets).sum().item() # 정답 개수 누적
+        
+    acc = correct / total * 100 # 정확도(%) 계산
+    model.train()               # 모델을 학습 모드로 설정
+    return acc                  # 정확도(%) 반환
+# 클래스별 정확도를 계산하는 함수
+def evaluate_by_class(model, loader, device, num_classes): # 모델, 데이터 로더, 디바이스, 클래스 개수를 인자로 받음
+    with torch.no_grad():                     # 그래디언트 계산 비활성화
+        model.eval()                          # 모델을 평가 모드로 설정
+        total = torch.zeros(num_classes)      # 클래스별 전체 데이터 개수 저장 변수
+        correct = torch.zeros(num_classes)    # 클래스별 정답 개수 저장 변수
+        for images, targets in loader:        # 데이터 로더로부터 미니배치를 하나씩 꺼내옴
+            images, targets = images.to(device), targets.to(device) # 디바이스에 데이터를 보냄
+            output = model(images)            # 모델에 미니배치 데이터 입력하여 결괏값 계산
+            output_index = torch.argmax(output, dim = 1) # 결괏값 중 가장 큰 값의 인덱스를 뽑아냄
+            for _class in range(num_classes): # 클래스 개수만큼 반복
+                total[_class] += (targets == _class).sum().item() # 클래스별 전체 데이터 개수 누적
+                correct[_class] += ((targets == _class) * (output_index == _class)).sum().item() # 클래스별 정답 개수 누적
+        
+    acc = correct / total * 100 # 클래스별 정확도(%) 계산
+    model.train()               # 모델을 학습 모드로 설정
+    return acc                  # 클래스별 정확도(%) 반환
+
+_max = -1 # 최대 정확도 저장 변수
 # 학습을 위한 반복 (Loop) for / while
 for epoch in range(epochs):
 # 입력할 데이터를 위해 데이터 준비 (dataloader)
@@ -93,3 +129,16 @@ for epoch in range(epochs):
         # 100번 반복마다 loss 출력
         if idx % 100 == 0:
             print(loss)
+            
+            acc = evaluate(myMLP, test_loader, device) # 전체 데이터에 대한 정확도 계산
+            # acc = evaluate_by_class(myMLP, test_loader, device, num_classes) # 클래스별 정확도 계산
+            
+            # 정확도가 높아지면 모델 저장
+            if _max < acc : # acc가 높아지면
+                print('새로운 acc 등장, 모델 weight 업데이트', acc) # acc 출력
+                _max = acc  # _max에 acc 저장
+                # 모델 저장
+                torch.save(
+                    myMLP.state_dict(),
+                    os.path.join(target_folder, 'myMLP_best.ckpt')
+                )
