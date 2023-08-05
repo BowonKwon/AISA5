@@ -1,11 +1,11 @@
 # 패키지 임포트
-import os # os 패키지 임포트
-import torch # 파이토치 패키지 임포트
-import torch.nn as nn # nn 패키지 임포트
-from torchvision.datasets import MNIST # MNIST 데이터셋 불러오기
+import os                                   # os 패키지 임포트
+import torch                                # 파이토치 패키지 임포트
+import torch.nn as nn                       # nn 패키지 임포트
+from torchvision.datasets import MNIST      # MNIST 데이터셋 불러오기
 from torchvision.transforms import ToTensor # ToTensor 클래스 임포트
-from torch.utils.data import DataLoader # DataLoader 클래스 임포트
-from torch.optim import Adam # Adam 클래스 임포트
+from torch.utils.data import DataLoader     # DataLoader 클래스 임포트
+from torch.optim import Adam                # Adam 클래스 임포트
 
 # hyperparameter 선언(학습률, 이미지 사이즈, 클래스 개수, 배치 사이즈, 은닉층 사이즈, 에포크 수, 결과 저장 폴더)
 lr = 0.001
@@ -23,11 +23,11 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu') # 디바�
 if not os.path.exists(results_folder):
     os.makedirs(results_folder)
 # 결과 저장할 하위 타깃 폴더 생성
-target_folder_name = max([0] + [int(e) for e in os.listdir(results_folder)])+1 # 하위 타깃 폴더 이름
-target_folder = os.path.join(results_folder, str(target_folder_name)) # 하위 타깃 폴더 경로
-os.makedirs(target_folder) # 하위 타깃 폴더 생성
+target_folder_name = max([0] + [int(e) for e in os.listdir(results_folder)])+1  # 하위 타깃 폴더 이름
+target_folder = os.path.join(results_folder, str(target_folder_name))           # 하위 타깃 폴더 경로
+os.makedirs(target_folder)                                                      # 하위 타깃 폴더 생성
 # 타깃 폴더에 하이퍼파라미터 저장
-with open(os.path.join(target_folder, 'hparam.txt'), 'w') as f: # 타깃 폴더에 hparam.txt 파일 생성
+with open(os.path.join(target_folder, 'hparam.txt'), 'w') as f:                 # 타깃 폴더에 hparam.txt 파일 생성
     f.write(f'{lr}\n')
     f.write(f'{image_size}\n')
     f.write(f'{num_classes}\n') 
@@ -90,16 +90,16 @@ def evaluate(model, loader, device):    # 모델, 데이터 로더, 디바이스
     model.train()               # 모델을 학습 모드로 설정
     return acc                  # 정확도(%) 반환
 # 클래스별 정확도를 계산하는 함수
-def evaluate_by_class(model, loader, device, num_classes): # 모델, 데이터 로더, 디바이스, 클래스 개수를 인자로 받음
-    with torch.no_grad():                     # 그래디언트 계산 비활성화
-        model.eval()                          # 모델을 평가 모드로 설정
-        total = torch.zeros(num_classes)      # 클래스별 전체 데이터 개수 저장 변수
-        correct = torch.zeros(num_classes)    # 클래스별 정답 개수 저장 변수
-        for images, targets in loader:        # 데이터 로더로부터 미니배치를 하나씩 꺼내옴
+def evaluate_by_class(model, loader, device, num_classes):  # 모델, 데이터 로더, 디바이스, 클래스 개수를 인자로 받음
+    with torch.no_grad():                                   # 그래디언트 계산 비활성화
+        model.eval()                                        # 모델을 평가 모드로 설정
+        total = torch.zeros(num_classes)                    # 클래스별 전체 데이터 개수 저장 변수
+        correct = torch.zeros(num_classes)                  # 클래스별 정답 개수 저장 변수
+        for images, targets in loader:                      # 데이터 로더로부터 미니배치를 하나씩 꺼내옴
             images, targets = images.to(device), targets.to(device) # 디바이스에 데이터를 보냄
-            output = model(images)            # 모델에 미니배치 데이터 입력하여 결괏값 계산
-            output_index = torch.argmax(output, dim = 1) # 결괏값 중 가장 큰 값의 인덱스를 뽑아냄
-            for _class in range(num_classes): # 클래스 개수만큼 반복
+            output = model(images)                          # 모델에 미니배치 데이터 입력하여 결괏값 계산
+            output_index = torch.argmax(output, dim = 1)    # 결괏값 중 가장 큰 값의 인덱스를 뽑아냄
+            for _class in range(num_classes):               # 클래스 개수만큼 반복
                 total[_class] += (targets == _class).sum().item() # 클래스별 전체 데이터 개수 누적
                 correct[_class] += ((targets == _class) * (output_index == _class)).sum().item() # 클래스별 정답 개수 누적
         
@@ -130,8 +130,8 @@ for epoch in range(epochs):
         if idx % 100 == 0:
             print(loss)
             
-            acc = evaluate(myMLP, test_loader, device) # 전체 데이터에 대한 정확도 계산
-            # acc = evaluate_by_class(myMLP, test_loader, device, num_classes) # 클래스별 정확도 계산
+            acc = evaluate(myMLP, test_loader, device)                          # 전체 데이터에 대한 정확도 계산
+            # acc = evaluate_by_class(myMLP, test_loader, device, num_classes)  # 클래스별 정확도 계산
             
             # 정확도가 높아지면 모델 저장
             if _max < acc : # acc가 높아지면
