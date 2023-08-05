@@ -98,7 +98,7 @@ def evaluate_by_class(model, loader, device, num_classes): # 모델, 데이터 �
         for images, targets in loader:          # 데이터 로더로부터 미니배치를 하나씩 꺼내옴
             images, targets = images.to(device), targets.to(device) # 디바이스에 데이터를 보냄
             output = model(images)              # 모델에 미니배치 데이터 입력하여 결괏값 계산
-            output_index = torch.argmax(output, dim = 1)# 결괏값 중 가장 큰 값의 인덱스를 뽑아냄
+            output_index = torch.argmax(output, dim = 1) # 결괏값 중 가장 큰 값의 인덱스를 뽑아냄
             for _class in range(num_classes): # 클래스 개수만큼 반복
                 total[_class] += (targets == _class).sum().item() # 클래스별 전체 데이터 개수 누적
                 correct[_class] += ((targets == _class) * (output_index == _class)).sum().item() # 클래스별 정답 개수 누적
