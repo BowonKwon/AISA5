@@ -27,7 +27,7 @@ class MLP(nn.Module): # nn.Module을 상속받는 MLP 클래스 선언
         self.mlp4 = nn.Linear(hidden_size, num_classes) # 네 번째 MLP 레이어 선언(은닉층3 -> 출력층)
     def forward(self, x): # 순전파: 데이터가 레이어 통과하는 방식 지정
         batch_size = x.shape[0] # 입력 텐서의 배치 크기 저장(x: [batch_size, 28, 28, 1])
-        x = torch.reshape(x, (-1, image_size * image_size)) # 28*28 픽셀 이미지를 1차원 벡터로 변환(펼치기)
+        x = torch.reshape(x, (-1, self.image_size * self.image_size)) # 28*28 픽셀 이미지를 1차원 벡터로 변환(펼치기)
         # 순전파 수행: 입력 이미지를 순차적으로 MLP 레이어에 통과시킴
         x = self.mlp1(x) # [batch_size, 500]
         x = self.mlp2(x) # [batch_size, 500]
