@@ -45,10 +45,10 @@ class MLP(nn.Module): # nn.Module을 상속받는 MLP 클래스 선언
         # 최종 출력 반환
         return x
     
-# 모델 선언
+# 모델 객체 만들기
 myMLP = MLP(image_size, hidden_size, num_classes).to(device)
 
-# 저장된 모델 가중치 불러오기
+# 모델 가중치 업데이트
 ckpt = torch.load(                          # 저장된 모델 가중치 불러오기
     os.path.join(                           # 경로 설정
         target_folder, 'myMLP_best.ckpt'    # 타겟 폴더 내의 myMLP_best.ckpt 파일 경로
