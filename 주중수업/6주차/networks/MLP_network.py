@@ -8,7 +8,7 @@ class MLP(nn.Module):
     def __init__(self, image_size, hidden_size, num_classes):
         # 상속받은 클래스의 초기화 메서드 호출
         super().__init__()
-        # 하이퍼파라미터 저장
+        # 클래스의 속성 정의
         self.image_size = image_size                                    # 이미지 크기
         self.mlp1 = nn.Linear(image_size * image_size, hidden_size)     # 첫 번째 MLP 레이어 선언(입력층 -> 은닉층1)
         self.mlp2 = nn.Linear(hidden_size, hidden_size)                 # 두 번째 MLP 레이어 선언(은닉층1 -> 은닉층2)
