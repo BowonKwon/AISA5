@@ -34,7 +34,7 @@ def main():
     model.load_state_dict(ckpt)                         # 모델에 가중치 저장
 
     # 추론할 이미지 불러오기
-    input_image = Image.open(args.target_image)#.convert('L')
+    input_image = Image.open(args.target_image) #.convert('L')
 
     # 이미지를 모델에 입력할 수 있는 형태로 변환
     trans = get_transform(args)                 # 이미지를 변환하기 위한 함수 불러오기
