@@ -9,7 +9,7 @@ from torchvision.transforms import ToTensor # ToTensor 클래스 임포트
 from torch.utils.data import DataLoader     # DataLoader 클래스 임포트
 from torch.optim import Adam                # Adam 클래스 임포트
 
-def parse_args():                           # 하이퍼파라미터 선언 함수
+def parse_args():                           # 하이퍼파라미터 파싱 함수
     parser = argparse.ArgumentParser()      # parser 객체 생성
     # 하이퍼파라미터 선언
     parser.add_argument('--lr', type=float, default=0.001)
@@ -22,7 +22,6 @@ def parse_args():                           # 하이퍼파라미터 선언 함�
     parser.add_argument('--device', default=torch.device('cuda' if torch.cuda.is_available() else 'cpu'))
     parser.add_argument('--do_save', action='store_true', help='if given, save results') # 예시1
     parser.add_argument('--data', nargs='+', type=str)                                   # 예시2 
-
 
     args = parser.parse_args()              # 파싱한 하이퍼파라미터 저장
     return args                             # 하이퍼파라미터 반환
@@ -43,8 +42,6 @@ def main():                                 # 메인 함수
         write_args = args.__dict__                                                      # 하이퍼파라미터 딕셔너리 저장
         del write_args['device']                                                        # 딕셔너리에서 device 키 삭제
         json.dump(args.__dict__, f, indent=4)                                           # 딕셔너리를 json 파일로 저장
-
-    assert() # assert: 조건이 참이면 아무런 일도 일어나지 않지만, 조건이 거짓이면 AssertionError 발생
 
     # 모델 설계도 그리기
     class MLP(nn.Module): # nn.Module을 상속받는 MLP 클래스 선언
